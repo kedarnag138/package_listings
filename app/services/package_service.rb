@@ -28,8 +28,8 @@ class PackageService
   def create_package
     begin
       external_package_service.create(package_attributes)
-      FileUtils.rm_rf(Dir.glob("#{Rails.root}/public/#{@name}/*"))
-      File.delete("#{Rails.root}/public/#{@name}_#{version}.tar.gz") if File.exist?("#{Rails.root}/public/#{@name}_#{version}.tar.gz")
+      FileUtils.rm_rf(Dir.glob("#{Rails.root}/public/*"))
+      # File.delete("#{Rails.root}/public/#{@name}_#{@version}.tar.gz") if File.exist?("#{Rails.root}/public/#{@name}_#{@version}.tar.gz")
     rescue
       false
     end

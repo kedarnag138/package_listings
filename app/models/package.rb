@@ -18,7 +18,7 @@ class Package < ApplicationRecord
 
   def self.build_package(package)
     PackageService.new({
-      name: package["Name"],
+      name: package["Name"].present? ? package["Name"] : package["Package"],
       version: package["Version"],
       publication_date: package["Date/Publication"],
       title: package["Title"],
