@@ -4,6 +4,16 @@ require "dcf"
 require "open-uri"
 class PackageService
 
+  def initialize(params)
+    @name = params[:name]
+    @version = params[:version]
+    @publication_date = params[:publication_date]
+    @title = params[:title]
+    @description = params[:description]
+    @authors = params[:authors]
+    @maintainers = params[:maintainers]
+  end
+
   def self.get_all_packages
     uri = URI("https://cran.r-project.org/src/contrib/PACKAGES")
     http = Net::HTTP.new(uri.host, uri.port)
@@ -12,22 +22,33 @@ class PackageService
     request = Net::HTTP::Get.new(uri.path)
     response = http.request(request)
     packages = Dcf.parse(response.body)
-    self.build_url_to_get_package_information(packages)
+    Package.get_information(packages)
+  end
+
+  def create_package
+    begin
+      external_package_service.create(package_attributes)
+    rescue
+      false
+    end
   end
 
   private
 
-  def self.build_url_to_get_package_information(packages)
-    packages.each do |package|
-      open("#{Rails.root}/public/#{package["Package"]}_#{package["Version"]}.tar.gz", "wb", encoding: "ascii-8bit") do |file|
-        file << open("http://cran.r-project.org/src/contrib/#{package["Package"]}_#{package["Version"]}.tar.gz").read
-      end
-      Dir.chdir("public/") do
-        `tar xzf #{Rails.root}/public/#{package["Package"]}_#{package["Version"]}.tar.gz`
-      end
-      package_information = File.read("#{Rails.root}/public/#{package["Package"]}/DESCRIPTION")
-      response_body = Dcf.parse(package_information).first
-    end
+  def external_package_service
+    Package
+  end
+
+  def package_attributes
+    {
+      name: @name,
+      version: @version,
+      publication_date: @publication_date,
+      title: @title,
+      description: @description,
+      authors: @authors,
+      maintainers: @maintainers
+    }
   end
 
 end
