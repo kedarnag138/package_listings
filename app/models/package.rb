@@ -1,5 +1,7 @@
 class Package < ApplicationRecord
 
+  default_scope { order("created_at DESC") }
+
   def self.get_information(packages)
     packages.each do |package|
       open("#{Rails.root}/public/#{package["Package"]}_#{package["Version"]}.tar.gz", "wb", encoding: "ascii-8bit") do |file|
